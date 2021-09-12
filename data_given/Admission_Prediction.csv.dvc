@@ -1,0 +1,4 @@
+outs:
+- md5: eaaed7f53b5ef73c9af8e05babc19feb
+  size: 16085
+  path: Admission_Prediction.csv
