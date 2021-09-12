@@ -19,3 +19,6 @@ dvc init
 
 dvc add data_given/Admission_Prediction.csv
 
+git add . && git commit -m "first commit"
+
+
