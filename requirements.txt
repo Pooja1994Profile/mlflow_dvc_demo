@@ -7,3 +7,5 @@ pandas
 #yaml
 pytest
 tox
+flake8
+flask_cors

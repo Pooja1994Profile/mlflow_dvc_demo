@@ -50,6 +50,7 @@ def train_and_evaluate(config_path):
     lr.fit(s_train_x, train_y)
 
     predicted_qualities = lr.predict(s_test_x)
+    # print(lr.predict([[321.0, 111.0, 3.0, 3.5, 4.0, 8.83, 1]]))
     (rmse, mae, r2) = eval_metrics(test_y, predicted_qualities)
 
     scores_file = config['reports']['scores']
