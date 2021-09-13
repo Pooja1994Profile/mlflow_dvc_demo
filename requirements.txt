@@ -3,4 +3,6 @@ dvc[gdrive]
 sklearn
 flask
 pandas
-yaml
+#yaml
+pytest
+tox
