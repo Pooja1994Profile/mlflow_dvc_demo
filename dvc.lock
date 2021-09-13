@@ -1,0 +1,18 @@
+schema: '2.0'
+stages:
+  load_data:
+    cmd: python src/load_data.py --config=params.yaml
+    deps:
+    - path: data_given/Admission_Prediction.csv
+      md5: eaaed7f53b5ef73c9af8e05babc19feb
+      size: 16085
+    - path: src/get_data.py
+      md5: aef78e3e374c4df144c02c59c269f4c5
+      size: 614
+    - path: src/load_data.py
+      md5: d6c3b0e4fd493267a1f0dc60051b0948
+      size: 583
+    outs:
+    - path: data/raw/Admission_Prediction.csv
+      md5: 1f034b82d2bbc5302aa8a75b3e2f028d
+      size: 20135
