@@ -10,8 +10,8 @@ stages:
       md5: aef78e3e374c4df144c02c59c269f4c5
       size: 614
     - path: src/load_data.py
-      md5: d6c3b0e4fd493267a1f0dc60051b0948
-      size: 583
+      md5: bc61ef8212cc001d39c6c7203809eb43
+      size: 585
     outs:
     - path: data/raw/Admission_Prediction.csv
       md5: 1f034b82d2bbc5302aa8a75b3e2f028d
@@ -19,16 +19,58 @@ stages:
   split_data:
     cmd: python src/split_data.py --config=params.yaml
     deps:
+    - path: data/preprocessing/Admission_Prediction.csv
+      md5: 218b4d9db498bde269a30afd4306519a
+      size: 20618
+    - path: src/split_data.py
+      md5: 60d97830bf43708b0a0c4ce8c088529a
+      size: 1028
+    outs:
+    - path: data/processed/test_Admission_Prediction.csv
+      md5: 942841525dd5e6bc6f6ac1da9f00d755
+      size: 4225
+    - path: data/processed/train_Admission_Prediction.csv
+      md5: 6b3e37f6aabca8ff2d67f254e70f78bf
+      size: 16483
+  process_data:
+    cmd: python src/pre_process_data.py --config=params.yaml
+    deps:
     - path: data/raw/Admission_Prediction.csv
       md5: 1f034b82d2bbc5302aa8a75b3e2f028d
       size: 20135
-    - path: src/split_data.py
-      md5: ae95da10556030aac6b21fcc15108071
-      size: 1048
+    - path: src/get_data.py
+      md5: aef78e3e374c4df144c02c59c269f4c5
+      size: 614
+    - path: src/pre_process_data.py
+      md5: 29079a0b1a3e8e231dcdf92e1887e48b
+      size: 987
     outs:
+    - path: data/preprocessing/Admission_Prediction.csv
+      md5: 218b4d9db498bde269a30afd4306519a
+      size: 20618
+  train_and_evaluate:
+    cmd: python src/train_and_evaluate.py --config=params.yaml
+    deps:
     - path: data/processed/test_Admission_Prediction.csv
-      md5: 3bbab907563a8054376f09d951c1d643
-      size: 3701
+      md5: 942841525dd5e6bc6f6ac1da9f00d755
+      size: 4225
     - path: data/processed/train_Admission_Prediction.csv
-      md5: f02e1e66722b2e42c4ec163cc9762104
-      size: 14610
+      md5: 6b3e37f6aabca8ff2d67f254e70f78bf
+      size: 16483
+    - path: src/train_and_evaluate.py
+      md5: 769481c3d9eb8d2b3dbd2ba9be91e8bd
+      size: 2549
+    params:
+      params.yaml:
+        estimators.ElasticNet.params.alpha: 0.9
+        estimators.ElasticNet.params.l1_ratio: 0.4
+    outs:
+    - path: report/params.json
+      md5: e519268def4666a9c8620ea20a93ab41
+      size: 91
+    - path: report/scores.json
+      md5: e519268def4666a9c8620ea20a93ab41
+      size: 91
+    - path: saved_models/model.joblib
+      md5: 0b04101e7b45dbc492b9ff7654905c0f
+      size: 794
