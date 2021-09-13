@@ -2,4 +2,5 @@ dvc
 dvc[gdrive]
 sklearn
 flask
-
+pandas
+yaml
