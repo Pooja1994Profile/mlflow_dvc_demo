@@ -33,3 +33,26 @@ git remote add origin https://github.com/Pooja1994Profile/mlflow_dvc_demo.git
 git branch main
 git push origin main
 ```
+Tox Commands
+```bash
+tox
+```
+For rebuilding tox
+```bash
+tox -r
+```
+
+pytest command
+```bash
+pytest -v
+```
+
+Setup command
+```bash
+pip install -e .
+```
+
+Build own package commands (.tar file)
+```bash
+python setup.py sdist bdist_wheel
+```
