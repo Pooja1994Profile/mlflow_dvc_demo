@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from flask_cors import cross_origin
+from sklearn.preprocessing import StandardScaler
 import os
 import yaml
 import joblib
@@ -23,11 +24,13 @@ def read_params(config_path):
 def predict(data):
     config = read_params(params_path)
     model_dir_path = config['webapp_model_dir']
-
     model = joblib.load(model_dir_path)
-    print(model.predict([[321.0, 111.0, 3.0, 3.5, 4.0, 8.83, 1]]))
+    # print(model.predict([[321.0, 111.0, 3.0, 3.5, 4.0, 8.83, 1]]))
+    
+    scaler = StandardScaler()
+    data = scaler.fit_transform(data)
+    
     prediction = model.predict(data)
-    print(prediction)
     return prediction
 
 
