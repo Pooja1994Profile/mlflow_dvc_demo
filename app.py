@@ -16,25 +16,28 @@ app = Flask(__name__, static_folder=static_dir, template_folder=template_dir)
 
 
 def read_params(config_path):
+
     with open(config_path) as yaml_file:
         config = yaml.safe_load(yaml_file)
     return config
 
 
 def predict(data):
+
     config = read_params(params_path)
     model_dir_path = config['webapp_model_dir']
     model = joblib.load(model_dir_path)
     # print(model.predict([[321.0, 111.0, 3.0, 3.5, 4.0, 8.83, 1]]))
-    
+
     scaler = StandardScaler()
     data = scaler.fit_transform(data)
-    
+
     prediction = model.predict(data)
     return prediction
 
 
 def api_response(response):
+
     try:
         data = np.array([list(request.json.value())])
         response = predict(data)
@@ -74,7 +77,7 @@ def index():
 
         except Exception as e:
             print(e)
-            error = {"error:" : "Something went wromg"}
+            error = {"error:": "Something went wromg"}
             return render_template('404.html', error=error)
     else:
         return render_template('index.html')
@@ -82,4 +85,4 @@ def index():
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=8001, debug=True)
-	# app.run(debug=True) # running the app
+# app.run(debug=True) # running the app
