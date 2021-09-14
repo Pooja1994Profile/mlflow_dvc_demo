@@ -13,6 +13,7 @@ template_dir = os.path.join(webapp_root, "templates")
 
 app = Flask(__name__, static_folder=static_dir, template_folder=template_dir)
 
+
 @app.route('/', methods=['GET'])  # route to display the home page
 @cross_origin()
 def homePage():
@@ -38,7 +39,8 @@ def index():
 
         except Exception as e:
             print(e)
-            return render_template('404.html', error=e)
+            error = {"error": e}
+            return render_template("404.html", error=error)
     else:
         return render_template('index.html')
 

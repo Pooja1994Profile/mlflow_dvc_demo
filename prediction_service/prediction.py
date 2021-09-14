@@ -31,14 +31,11 @@ def predict(data):
     config = read_params(params_path)
     model_dir_path = config["webapp_model_dir"]
     model = joblib.load(model_dir_path)
-    print(data)
 
     scaler = StandardScaler()
     data = scaler.fit_transform(data)
 
-    print(data)
     prediction = float(model.predict(data).tolist()[0])*100
-    print(prediction)
     try:
         if 0 < prediction <= 100:
             return prediction
@@ -75,12 +72,22 @@ def validate_input(dict_request):
 
 
 def form_response(dict_request):
-    print(dict_request)
-    if validate_input(dict_request):
-        data = dict_request.values()
-        data = [list(map(float, data))]
-        response = predict(data)
-        print(response)
+    try:
+        if validate_input(dict_request):
+            data = dict_request.values()
+            data = [list(map(float, data))]
+            response = predict(data)
+            return response
+    except NotInRange as e:
+        response = {"the_exected_range": get_schema(), "response": str(e)}
+        return response
+
+    except NotInCols as e:
+        response = {"the_exected_cols": get_schema().keys(), "response": str(e)}
+        return response
+
+    except Exception as e:
+        response = {"response": str(e)}
         return response
 
 
