@@ -1,1 +1,1 @@
-waitress-serve --listen=*:80 app.wsgi:application
+web: python app.py   --master --processes 4 --threads 2

@@ -5,7 +5,7 @@ import os
 import yaml
 import joblib
 import numpy as np
-from waitress import serve
+
 
 params_path = 'params.yaml'
 webapp_root = 'webapp'
@@ -86,4 +86,4 @@ def index():
 if __name__ == "__main__":
     # app.run(host='127.0.0.1', port=8001, debug=True)
     #app.run(debug=True) # running the app
-    serve(app, host='0.0.0.0', port=80)
+    app.run(host='0.0.0.0', port=port)

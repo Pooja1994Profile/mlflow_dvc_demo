@@ -9,4 +9,3 @@ pytest
 tox
 flake8
 flask_cors
-waitress
