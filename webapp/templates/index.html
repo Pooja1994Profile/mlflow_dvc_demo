@@ -19,12 +19,12 @@
 
     <div class="form">
         <form action="/predict" method="POST">
-            <input type="number" name="gre_score" id="gre_score" placeholder="GRE Score">
-            <input type="number" name="toefl_score" id="toefl_score" placeholder="TOEFL Score">
-            <input type="number" name="university_rating" id="university_rating" placeholder="University Rating">
-            <input type="number" name="sop" id="sop" placeholder="SOP Score">
-            <input type="number" name="lor" id="lor" placeholder="LOR Score">
-            <input type="number" name="cgpa" id="cgpa"placeholder="CGPA" step="any">
+            <input type="number" name="gre_score" id="gre_score" placeholder="GRE Score expected range 290.0 to 340.0">
+            <input type="number" name="toefl_score" id="toefl_score" placeholder="TOEFL Score expected range 92.0 to 120.0">
+            <input type="number" name="university_rating" id="university_rating" placeholder="University Rating expected range 1.0 to 5.0">
+            <input type="number" name="sop" id="sop" placeholder="SOP Score expected range 1.0 to 5.0">
+            <input type="number" name="lor" id="lor" placeholder="LOR Score expected range 1.0 to 5.0">
+            <input type="number" name="cgpa" id="cgpa"placeholder="CGPA expected range 6.8 to 9.92" step="any">
             <select name="research" id="research">
   <option value="yes">Yes</option>
   <option value="no">No</option>

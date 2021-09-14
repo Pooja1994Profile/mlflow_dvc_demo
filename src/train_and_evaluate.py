@@ -46,6 +46,8 @@ def train_and_evaluate(config_path):
     scaler = StandardScaler()
     s_train_x = scaler.fit_transform(train_x)
     s_test_x = scaler.fit_transform(test_x)
+    print(s_train_x)
+    print(s_test_x)
 
     lr = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=random_state)
     lr.fit(s_train_x, train_y)

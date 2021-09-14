@@ -5,6 +5,9 @@ body * {
   box-sizing: border-box;
 }
 
+input{
+    width:350px;
+}
 .header {
   background-color: #327a81;
   color: white;

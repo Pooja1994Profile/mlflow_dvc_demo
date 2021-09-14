@@ -30,7 +30,7 @@ def index():
                     data_req['research'] = 1
                 else:
                     data_req['research'] = 0
-                response = prediction.form_request(data_req)
+                response = prediction.form_response(data_req)
                 return render_template('result.html', response=response)
             elif request.json:
                 response = prediction.api_response(request)
@@ -46,6 +46,6 @@ def index():
 port = int(os.getenv("PORT"))
 
 if __name__ == "__main__":
-    # app.run(host='127.0.0.1', port=8001, debug=True)
+    #app.run(host='127.0.0.1', port=8001, debug=True)
     #app.run(debug=True) # running the app
     app.run(host='0.0.0.0', port=port)
