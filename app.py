@@ -49,7 +49,7 @@ def api_response(response):
         return error
 
 
-@app.route('/', methods=['GET'])  # route to display the home page
+@app.route('/', methods=['GET', 'POST'])  # route to display the home page
 @cross_origin()
 def homePage():
     return render_template("index.html")
