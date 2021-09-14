@@ -80,6 +80,7 @@ def form_response(dict_request):
         data = dict_request.values()
         data = [list(map(float, data))]
         response = predict(data)
+        print(response)
         return response
 
 
