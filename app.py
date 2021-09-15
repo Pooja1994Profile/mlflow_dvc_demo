@@ -1,10 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 from flask_cors import cross_origin
 import os
-import yaml
-import joblib
-import numpy as np
 from prediction_service import prediction
+from logger_error import log_error
 
 webapp_root = 'webapp'
 
@@ -20,7 +18,7 @@ def homePage():
     return render_template("index.html")
 
 
-@app.route('/predict', methods=['GET', 'POST'])
+@app.route('/predict', methods=['GET', 'POST'])  # route to display the result page
 @cross_origin()
 def index():
     if request.method == 'POST':
@@ -40,6 +38,8 @@ def index():
         except Exception as e:
             print(e)
             error = {"error": e}
+            log_obj = log_error()
+            log_obj.dvc_logger(str(e))
             return render_template("404.html", error=error)
     else:
         return render_template('index.html')
@@ -48,6 +48,6 @@ def index():
 port = int(os.getenv("PORT"))
 
 if __name__ == "__main__":
-    #app.run(host='127.0.0.1', port=8001, debug=True)
-    #app.run(debug=True) # running the app
+    # app.run(host='127.0.0.1', port=8001, debug=True)
+    # app.run(debug=True) # running the app
     app.run(host='0.0.0.0', port=port)

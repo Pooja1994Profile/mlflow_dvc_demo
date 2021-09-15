@@ -1,3 +1,4 @@
+# For creating project folder structure
 import os
 
 dirs = [

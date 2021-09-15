@@ -1,8 +1,5 @@
 # All the test cases function should start with test_function_name
-import json
-import logging
-import os
-import joblib
+
 import pytest
 from prediction_service.prediction import form_response, api_response
 import prediction_service

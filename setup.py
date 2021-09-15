@@ -1,3 +1,4 @@
+# for creating python packages
 from setuptools import setup, find_packages
 
 setup(

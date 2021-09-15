@@ -4,18 +4,26 @@ import json
 import joblib
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+from logger_error import log_error
+
 
 params_path = "params.yaml"
 schema_path = os.path.join("prediction_service", "schema_in.json")
 
 
 class NotInRange(Exception):
+    """
+    Custom exception for feature are not in given range in schema_in
+    """
     def __init__(self, message="Values entered are not in expected range"):
         self.message = message
         super().__init__(self.message)
 
 
 class NotInCols(Exception):
+    """
+        Custom exception for feature are same as expected model
+    """
     def __init__(self, message="Not in cols"):
         self.message = message
         super().__init__(self.message)
@@ -28,6 +36,11 @@ def read_params(config_path=params_path):
 
 
 def predict(data):
+    """
+    This function will take data from web app and will do model predict.
+    :param data: data from web app
+    :return: prediction value
+    """
     config = read_params(params_path)
     model_dir_path = config["webapp_model_dir"]
     model = joblib.load(model_dir_path)
@@ -42,6 +55,8 @@ def predict(data):
         else:
             raise NotInRange
     except NotInRange:
+        log_obj = log_error()
+        log_obj.dvc_logger(str(NotInRange))
         return "Unexpected result"
 
 
@@ -52,16 +67,25 @@ def get_schema(schema_path=schema_path):
 
 
 def validate_input(dict_request):
+    """
+    This will take json format date and do model prediction.
+    :param dict_request: Json data
+    :return: prediction
+    """
     def _validate_cols(col):
         schema = get_schema()
         actual_cols = schema.keys()
         if col not in actual_cols:
+            log_obj = log_error()
+            log_obj.dvc_logger(str(NotInCols))
             raise NotInCols
 
     def _validate_values(col, val):
         schema = get_schema()
 
         if not (schema[col]["min"] <= float(dict_request[col]) <= schema[col]["max"]):
+            log_obj = log_error()
+            log_obj.dvc_logger(str(NotInRange))
             raise NotInRange
 
     for col, val in dict_request.items():

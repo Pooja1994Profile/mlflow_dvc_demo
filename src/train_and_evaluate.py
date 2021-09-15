@@ -15,9 +15,16 @@ import argparse
 import joblib
 import json
 import mlflow
+from logger_error import log_error
 
 
 def eval_metrics(actual, pred):
+    """
+    This function will take actual and predicted independent variable and calculate rmse, mae, r2
+    :param actual: y_test
+    :param pred: y_predict
+    :return: rmse, mae, r2
+    """
     rmse = np.sqrt(mean_squared_error(actual, pred))
     mae = mean_absolute_error(actual, pred)
     r2 = r2_score(actual, pred)
@@ -25,65 +32,76 @@ def eval_metrics(actual, pred):
 
 
 def train_and_evaluate(config_path):
-    config = read_params(config_path)
-    test_data_path = config['split_data']['test_path']
-    train_data_path = config['split_data']['train_path']
-    random_state = config['base']['random_state']
-    model_dir = config['model_dir']
+    """
+    This function will scale the df then built ElasticNet model. Also, log model to mlflow
+    :param config_path: params.yaml file
+    :return: None
+    """
+    try:
+        config = read_params(config_path)
+        test_data_path = config['split_data']['test_path']
+        train_data_path = config['split_data']['train_path']
+        random_state = config['base']['random_state']
+        model_dir = config['model_dir']
 
-    alpha = config['estimators']['ElasticNet']['params']['alpha']
-    l1_ratio = config['estimators']['ElasticNet']['params']['l1_ratio']
+        alpha = config['estimators']['ElasticNet']['params']['alpha']
+        l1_ratio = config['estimators']['ElasticNet']['params']['l1_ratio']
 
-    target = [config["base"]["target_col"]]
+        target = [config["base"]["target_col"]]
 
-    train = pd.read_csv(train_data_path, sep=",")
-    test = pd.read_csv(test_data_path, sep=",")
+        train = pd.read_csv(train_data_path, sep=",")
+        test = pd.read_csv(test_data_path, sep=",")
 
-    train_y = train[target]
-    test_y = test[target]
+        train_y = train[target]
+        test_y = test[target]
 
-    train_x = train.drop(target, axis=1)
-    test_x = test.drop(target, axis=1)
+        train_x = train.drop(target, axis=1)
+        test_x = test.drop(target, axis=1)
 
-    scaler = StandardScaler()
-    s_train_x = scaler.fit_transform(train_x)
-    s_test_x = scaler.fit_transform(test_x)
+        scaler = StandardScaler()
+        s_train_x = scaler.fit_transform(train_x)
+        s_test_x = scaler.fit_transform(test_x)
 
-    #####################
-    mlflow_config = config["mlflow_config"]
-    remote_server_uri = mlflow_config["remote_server_uri"]
-    mlflow.set_tracking_uri(remote_server_uri)
+        #####################
+        mlflow_config = config["mlflow_config"]
+        remote_server_uri = mlflow_config["remote_server_uri"]
+        mlflow.set_tracking_uri(remote_server_uri)
 
-    mlflow.set_experiment(mlflow_config["experiment_name"])
+        mlflow.set_experiment(mlflow_config["experiment_name"])
 
-    with mlflow.start_run(run_name=mlflow_config["run_name"]) as mlops_run:
+        with mlflow.start_run(run_name=mlflow_config["run_name"]) as mlops_run:
 
-        lr = ElasticNet(
-            alpha=alpha,
-            l1_ratio=l1_ratio,
-            random_state=random_state)
-        lr.fit(s_train_x, train_y)
+            lr = ElasticNet(
+                alpha=alpha,
+                l1_ratio=l1_ratio,
+                random_state=random_state)
+            lr.fit(s_train_x, train_y)
 
-        predicted_qualities = lr.predict(s_test_x)
-        # print(lr.predict([[321.0, 111.0, 3.0, 3.5, 4.0, 8.83, 1]]))
-        (rmse, mae, r2) = eval_metrics(test_y, predicted_qualities)
+            predicted_qualities = lr.predict(s_test_x)
+            # print(lr.predict([[321.0, 111.0, 3.0, 3.5, 4.0, 8.83, 1]]))
+            (rmse, mae, r2) = eval_metrics(test_y, predicted_qualities)
 
-        mlflow.log_param("alpha", alpha)
-        mlflow.log_param('l1_ratio', l1_ratio)
+            mlflow.log_param("alpha", alpha)
+            mlflow.log_param('l1_ratio', l1_ratio)
 
-        mlflow.log_metric("rmse", rmse)
-        mlflow.log_metric("mae", mae)
-        mlflow.log_metric("r2", r2)
+            mlflow.log_metric("rmse", rmse)
+            mlflow.log_metric("mae", mae)
+            mlflow.log_metric("r2", r2)
 
-        tracking_url_type_store = urlparse(mlflow.get_artifact_uri()).scheme
+            tracking_url_type_store = urlparse(mlflow.get_artifact_uri()).scheme
 
-        if tracking_url_type_store != "file":
-            mlflow.sklearn.log_model(
-                lr,
-                "model",
-                registered_model_name=mlflow_config["registered_model_name"])
-        else:
-            mlflow.sklearn.log_model(lr, "model")
+            if tracking_url_type_store != "file":
+                mlflow.sklearn.log_model(
+                    lr,
+                    "model",
+                    registered_model_name=mlflow_config["registered_model_name"])
+            else:
+                mlflow.sklearn.log_model(lr, "model")
+    except Exception as e:
+        print(e)
+        log_obj = log_error()
+        log_obj.dvc_logger(str(e))
+        raise e
 
         """
         scores_file = config['reports']['scores']
