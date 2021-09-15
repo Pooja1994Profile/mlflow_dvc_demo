@@ -10,9 +10,11 @@ from sklearn.linear_model import ElasticNet
 from urllib.parse import urlparse
 # noinspection PyUnresolvedReferences
 from get_data import read_params
+from urllib.parse import urlparse
 import argparse
 import joblib
 import json
+import mlflow
 
 
 def eval_metrics(actual, pred):
@@ -46,39 +48,67 @@ def train_and_evaluate(config_path):
     scaler = StandardScaler()
     s_train_x = scaler.fit_transform(train_x)
     s_test_x = scaler.fit_transform(test_x)
-    print(s_train_x)
-    print(s_test_x)
 
-    lr = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=random_state)
-    lr.fit(s_train_x, train_y)
+    #####################
+    mlflow_config = config["mlflow_config"]
+    remote_server_uri = mlflow_config["remote_server_uri"]
+    mlflow.set_tracking_uri(remote_server_uri)
 
-    predicted_qualities = lr.predict(s_test_x)
-    # print(lr.predict([[321.0, 111.0, 3.0, 3.5, 4.0, 8.83, 1]]))
-    (rmse, mae, r2) = eval_metrics(test_y, predicted_qualities)
+    mlflow.set_experiment(mlflow_config["experiment_name"])
 
-    scores_file = config['reports']['scores']
-    params_file = config['reports']['params']
+    with mlflow.start_run(run_name=mlflow_config["run_name"]) as mlops_run:
 
-    with open(scores_file, 'w') as f:
-        scores = {
-            "rmse": rmse,
-            'mae': mae,
-            'r2': r2
-        }
-        json.dump(scores, f, indent=4)
+        lr = ElasticNet(
+            alpha=alpha,
+            l1_ratio=l1_ratio,
+            random_state=random_state)
+        lr.fit(s_train_x, train_y)
 
-    with open(params_file, 'w') as f:
-        params = {
-            "rmse": rmse,
-            'mae': mae,
-            'r2': r2
-        }
-        json.dump(params, f, indent=4)
+        predicted_qualities = lr.predict(s_test_x)
+        # print(lr.predict([[321.0, 111.0, 3.0, 3.5, 4.0, 8.83, 1]]))
+        (rmse, mae, r2) = eval_metrics(test_y, predicted_qualities)
 
-    os.makedirs(model_dir, exist_ok=True)
-    model_path = os.path.join(model_dir, 'model.joblib')
+        mlflow.log_param("alpha", alpha)
+        mlflow.log_param('l1_ratio', l1_ratio)
 
-    joblib.dump(lr, model_path)
+        mlflow.log_metric("rmse", rmse)
+        mlflow.log_metric("mae", mae)
+        mlflow.log_metric("r2", r2)
+
+        tracking_url_type_store = urlparse(mlflow.get_artifact_uri()).scheme
+
+        if tracking_url_type_store != "file":
+            mlflow.sklearn.log_model(
+                lr,
+                "model",
+                registered_model_name=mlflow_config["registered_model_name"])
+        else:
+            mlflow.sklearn.log_model(lr, "model")
+
+        """
+        scores_file = config['reports']['scores']
+        params_file = config['reports']['params']
+
+        with open(scores_file, 'w') as f:
+            scores = {
+                "rmse": rmse,
+                'mae': mae,
+                'r2': r2
+            }
+            json.dump(scores, f, indent=4)
+
+        with open(params_file, 'w') as f:
+            params = {
+                "rmse": rmse,
+                'mae': mae,
+                'r2': r2
+            }
+            json.dump(params, f, indent=4)
+        os.makedirs(model_dir, exist_ok=True)
+        model_path = os.path.join(model_dir, 'model.joblib')
+
+        joblib.dump(lr, model_path)
+        """
 
 
 if __name__ == '__main__':

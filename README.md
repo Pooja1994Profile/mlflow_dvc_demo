@@ -56,3 +56,15 @@ Build own package commands (.tar file)
 ```bash
 python setup.py sdist bdist_wheel
 ```
+
+mlflow server commands
+(Create artifacts folder with your project before running below command)
+```bash
+mlflow server\
+--backend-store-uri sqlite:///mlflow.db \
+--default-artifact-root ./artifacts \
+--host 0.0.0.0 -p 1234
+```
+
+
+mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./artifacts --host 0.0.0.0 -p 1234
